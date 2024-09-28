@@ -1,2 +1,5 @@
 venv
 tg_bot/.env
+__pycache__
+api/encoder_model/
+*.log.jsonl
