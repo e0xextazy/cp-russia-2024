@@ -1,7 +1,14 @@
-import asyncio
 from fastapi import FastAPI
 from pydantic import BaseModel
 import uvicorn
+
+
+app = FastAPI()
+
+
+@app.get("/")
+def index():
+    return {"text": "Интеллектуальный помощник оператора службы поддержки."}
 
 
 class Request(BaseModel):
@@ -14,18 +21,16 @@ class Response(BaseModel):
     class_2: str
 
 
-app = FastAPI()
-
-
-@app.get("/")
-def index():
-    return {"text": "Интеллектуальный помощник оператора службы поддержки."}
-
-
 @app.post("/predict")
 async def predict_sentiment(request: Request):
+    text = request.question
+
+    #
+    # TODO: вставить модель
+    #
+
     answer_data = {
-        "answer": "Какой-то ответ",
+        "answer": f"Какой-то ответ на вопрос '{text}'",
         "class_1": "some_class",
         "class_2": "some_class"
     }
@@ -41,8 +46,6 @@ async def predict_sentiment(request: Request):
 
 
 if __name__ == "__main__":
-    host = "0.0.0.0"  # Сконфигурируйте host согласно настройкам вашего сервера.
-    config = uvicorn.Config(app, host=host, port=8000)
-    server = uvicorn.Server(config)
-    loop = asyncio.get_running_loop()
-    loop.create_task(server.serve())
+    # host = "0.0.0.0"
+    host = "localhost"
+    uvicorn.run(app, host=host, port=8000)
