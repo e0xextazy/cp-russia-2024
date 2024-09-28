@@ -1,4 +1,5 @@
 import logging
+import sys
 
 import httpx
 from aiogram import types
@@ -10,6 +11,19 @@ from bot_init import bot, dp
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter("%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s")
+file_handler = logging.FileHandler("bot.log")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+console_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 
 @dp.message(Command("start"))

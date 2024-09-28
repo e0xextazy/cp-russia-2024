@@ -1,7 +1,15 @@
+import logging
+import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
-import uvicorn
 
+from logger import file_handler, console_handler
+
+
+logger = logging.getLogger('api')
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 app = FastAPI()
 
@@ -24,16 +32,18 @@ class Response(BaseModel):
 @app.post("/predict")
 async def predict_sentiment(request: Request):
     text = request.question
-
+    logger.info({'request_text': text})
     #
     # TODO: вставить модель
     #
 
     answer_data = {
-        "answer": f"Какой-то ответ на вопрос '{text}'",
+        "answer": f"Какой-то ответ на вопрос {text}",
         "class_1": "some_class",
         "class_2": "some_class"
     }
+
+    logger.info({'response_text': answer_data})
 
     response = Response(
         answer=answer_data['answer'],
