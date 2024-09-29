@@ -8,6 +8,7 @@ from logger import file_handler, console_handler
 
 
 from model import get_predicts
+from rag import rag
 
 
 logger = logging.getLogger('api')
@@ -38,8 +39,7 @@ async def predict_sentiment(request: Request):
     text = request.question
     logger.info(f"Q: {text}")
 
-    # TODO вставить RAG
-    answer = f"Какой-то ответ на вопрос {text}"
+    answer = rag.predict(text)
     class1, class2 = get_predicts(text)
 
     logger.info(f"A: {answer}|{class1}|{class2}")
