@@ -36,25 +36,21 @@ class Response(BaseModel):
 @app.post("/predict")
 async def predict_sentiment(request: Request):
     text = request.question
-    logger.info({'request_text': text})
-    
+    logger.info(f"Q: {text}")
+
+    # TODO вставить RAG
+    answer = f"Какой-то ответ на вопрос {text}"
     class1, class2 = get_predicts(text)
 
-    answer_data = {
-        "answer": f"Какой-то ответ на вопрос {text}",
-        "class_1": class1,
-        "class_2": class2
-    }
-
-    logger.info({'response_text': answer_data})
+    logger.info(f"A: {answer}|{class1}|{class2}")
 
     response = Response(
-        answer=answer_data['answer'],
-        class_1=answer_data['class_1'],
-        class_2=answer_data['class_2'],
+        answer=answer,
+        class_1=class1,
+        class_2=class2,
     )
     return response
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="localhost", port=8975)

@@ -14,6 +14,8 @@ logger.setLevel(logging.INFO)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
+API_URL = 'http://localhost:8975'
+
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -27,7 +29,7 @@ async def start(message: types.Message):
 async def answer_for_all_question(message: types.Message):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         text = message.text
-        logger.info(f'Question: {text}')
+        logger.info(f'Q: {text}')
 
         if text.startswith('/'):
             await message.reply('Я знаю только команду /start. '
@@ -35,14 +37,13 @@ async def answer_for_all_question(message: types.Message):
             return
 
         data = {'question': text}
-        url = 'http://localhost:8000'
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url + '/predict', json=data)
+            response = await client.post(API_URL + '/predict', json=data)
             response_data = response.json()
 
         answer = response_data['answer']
-        logger.info(f'Bot answer: {answer}')
+        logger.info(f'A: {answer}')
 
         keyboard_markup = InlineKeyboardMarkup(
             inline_keyboard=[[
