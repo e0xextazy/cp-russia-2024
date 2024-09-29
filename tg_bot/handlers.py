@@ -1,6 +1,4 @@
 import logging
-import sys
-
 import httpx
 from aiogram import types
 from aiogram.filters import Command
@@ -37,14 +35,11 @@ async def answer_for_all_question(message: types.Message):
             return
 
         data = {'question': text}
-        url = 'http://localhost:8000'  # TODO url вынести в .env или нет
+        url = 'http://localhost:8000'
 
         async with httpx.AsyncClient() as client:
             response = await client.post(url + '/predict', json=data)
             response_data = response.json()
-
-        from asyncio import sleep
-        await sleep(1)
 
         answer = response_data['answer']
         logger.info(f'Bot answer: {answer}')
