@@ -2,6 +2,7 @@ import logging
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+from starlette.responses import RedirectResponse
 
 from logger import file_handler, console_handler
 
@@ -20,7 +21,7 @@ app = FastAPI()
 
 @app.get("/")
 def index():
-    return {"text": "Интеллектуальный помощник оператора службы поддержки."}
+    return RedirectResponse(url="/docs")
 
 
 class Request(BaseModel):
@@ -36,30 +37,20 @@ class Response(BaseModel):
 @app.post("/predict")
 async def predict_sentiment(request: Request):
     text = request.question
-    logger.info({'request_text': text})
+    logger.info(f"Q: {text}")
 
-    class1, class2 = get_predicts(text)
     answer = rag.predict(text)
+    class1, class2 = get_predicts(text)
 
-    answer_data = {
-        "answer": answer,
-        "class_1": class1,
-        "class_2": class2
-    }
-
-    logger.info({'response_text': answer_data})
+    logger.info(f"A: {answer}|{class1}|{class2}")
 
     response = Response(
-        answer=answer_data['answer'],
-        class_1=answer_data['class_1'],
-        # Классификатор оценивается опционально; при отсутствии можно задать константное значение.
-        class_2=answer_data['class_2'],
-        # Классификатор оценивается опционально; при отсутствии можно задать константное значение.
+        answer=answer,
+        class_1=class1,
+        class_2=class2,
     )
     return response
 
 
 if __name__ == "__main__":
-    # host = "0.0.0.0"
-    host = "localhost"
-    uvicorn.run(app, host=host, port=8000)
+    uvicorn.run(app, host="localhost", port=8975)

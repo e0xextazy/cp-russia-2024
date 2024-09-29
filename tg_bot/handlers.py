@@ -1,30 +1,20 @@
 import logging
-import sys
-
 import httpx
 from aiogram import types
 from aiogram.filters import Command
 from aiogram.utils.chat_action import ChatActionSender
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from logger import file_handler, console_handler
 from bot_init import bot, dp
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-formatter = logging.Formatter(
-    "%(asctime)s -- %(name)s -- %(levelname)s -- %(message)s")
-file_handler = logging.FileHandler("bot.log")
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(formatter)
-
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(formatter)
-
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
+
+API_URL = 'http://localhost:8975'
 
 
 @dp.message(Command("start"))
@@ -39,7 +29,7 @@ async def start(message: types.Message):
 async def answer_for_all_question(message: types.Message):
     async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
         text = message.text
-        logger.info(f'Question: {text}')
+        logger.info(f'Q: {text}')
 
         if text.startswith('/'):
             await message.reply('Я знаю только команду /start. '
@@ -47,17 +37,13 @@ async def answer_for_all_question(message: types.Message):
             return
 
         data = {'question': text}
-        url = 'http://localhost:8000'  # TODO url вынести в .env или нет
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(url + '/predict', json=data)
+            response = await client.post(API_URL + '/predict', json=data)
             response_data = response.json()
 
-        from asyncio import sleep
-        await sleep(1)
-
         answer = response_data['answer']
-        logger.info(f'Bot answer: {answer}')
+        logger.info(f'A: {answer}')
 
         keyboard_markup = InlineKeyboardMarkup(
             inline_keyboard=[[
