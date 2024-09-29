@@ -1,9 +1,13 @@
+import os
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 import torch.nn as nn
 import torch
 import pickle
 import numpy as np
 import torch.nn.functional as F
+
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def pool(hidden_state, mask, pooling_method="csl"):
@@ -26,6 +30,8 @@ def prepare_input(text):
     )
     for k, v in inputs.items():
         inputs[k] = torch.tensor([v], dtype=torch.long)
+    for k, v in inputs.items():
+            inputs[k] = v.to(device)
     return inputs
 
 
@@ -37,6 +43,13 @@ class CustomModel(nn.Module):
         self.fc_class1 = nn.Linear(self.config.hidden_size, 11)
         self.fc_class2 = nn.Linear(self.config.hidden_size, 39)
 
+        self.fc_class1.load_state_dict(torch.load(
+            os.path.join(name, "linear.pth"), 
+            map_location=torch.device("cpu"))["fc_class1"])
+        self.fc_class2.load_state_dict(torch.load(
+            os.path.join(name, "linear.pth"), 
+            map_location=torch.device("cpu"))["fc_class2"])
+        
     def feature(self, inputs):
         outputs = self.model(**inputs)
         embeddings = pool(
@@ -55,20 +68,16 @@ class CustomModel(nn.Module):
 
 
 def setup():
-    model_name = "ai-forever/ru-en-RoSBERTa"
+    model_name = "api/encoder_model"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = CustomModel(model_name)
-    state = torch.load(
-        "api/encoder_model/ai-forever-ru-en-RoSBERTa_fold0_best.pth",
-        map_location=torch.device("cpu"),
-    )
-    model.load_state_dict(state["model"])
     model.eval()
 
     return model, tokenizer
 
 
 model, tokenizer = setup()
+model = model.to(device)
 with open("api/encoder_model/class1_le.pkl", "rb") as f:
     class1_le = pickle.load(f)
 with open("api/encoder_model/class2_le.pkl", "rb") as f:
@@ -78,8 +87,8 @@ with open("api/encoder_model/class2_le.pkl", "rb") as f:
 def get_predicts(text):
     inputs = prepare_input(text)
     class1_probs, class2_probs = model(inputs)
-    class1 = np.argmax(class1_probs.detach())
-    class2 = np.argmax(class2_probs.detach())
+    class1 = np.argmax(class1_probs.detach().cpu())
+    class2 = np.argmax(class2_probs.detach().cpu())
     class1_name = class1_le.inverse_transform([class1])[0]
     class2_name = class2_le.inverse_transform([class2])[0]
 
