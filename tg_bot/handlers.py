@@ -43,6 +43,8 @@ async def answer_for_all_question(message: types.Message):
             response_data = response.json()
 
         answer = response_data['answer']
+        if answer == "":
+            answer = "Не могу ответить на данный вопрос."
         logger.info(f'A: {answer}')
 
         keyboard_markup = InlineKeyboardMarkup(

@@ -126,4 +126,15 @@ Telegram-бот отвечает за взаимодействие с польз
 
 ### Результаты тестирования:
 
- - Средняя пропускная способность (RPS) решения составила 0.3 запросов в секунду
+ - Средняя пропускная способность решения составила 17 секунд на запрос
+
+<p align="center" width="100%">
+    <img width="100%" src="assets/locust.png">
+</p>
+
+## 4. Inference ML Design
+(Need dark theme)
+
+<p align="center" width="100%">
+    <img width="100%" src="assets/ml.png">
+</p>
