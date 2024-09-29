@@ -1,2 +1,8 @@
+venv
+.venv
 tg_bot/.env
 .idea/
+__pycache__
+api/encoder_model/
+*.log
+*.log.jsonl

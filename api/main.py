@@ -7,6 +7,9 @@ from starlette.responses import RedirectResponse
 from logger import file_handler, console_handler
 
 
+from model import get_predicts
+
+
 logger = logging.getLogger('api')
 logger.setLevel(logging.INFO)
 logger.addHandler(file_handler)
@@ -34,14 +37,13 @@ class Response(BaseModel):
 async def predict_sentiment(request: Request):
     text = request.question
     logger.info({'request_text': text})
-    #
-    # TODO: вставить модель
-    #
+    
+    class1, class2 = get_predicts(text)
 
     answer_data = {
         "answer": f"Какой-то ответ на вопрос {text}",
-        "class_1": "some_class",
-        "class_2": "some_class"
+        "class_1": class1,
+        "class_2": class2
     }
 
     logger.info({'response_text': answer_data})
