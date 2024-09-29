@@ -37,7 +37,7 @@ class Response(BaseModel):
 async def predict_sentiment(request: Request):
     text = request.question
     logger.info({'request_text': text})
-    
+
     class1, class2 = get_predicts(text)
     answer = rag.predict(text)
 

@@ -1,10 +1,11 @@
 import os
-from transformers import AutoConfig, AutoModel, AutoTokenizer
-import torch.nn as nn
-import torch
 import pickle
-import numpy as np
+
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
+from transformers import AutoConfig, AutoModel, AutoTokenizer
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -31,7 +32,7 @@ def prepare_input(text):
     for k, v in inputs.items():
         inputs[k] = torch.tensor([v], dtype=torch.long)
     for k, v in inputs.items():
-            inputs[k] = v.to(device)
+        inputs[k] = v.to(device)
     return inputs
 
 
@@ -44,18 +45,18 @@ class CustomModel(nn.Module):
         self.fc_class2 = nn.Linear(self.config.hidden_size, 39)
 
         self.fc_class1.load_state_dict(torch.load(
-            os.path.join(name, "linear.pth"), 
+            os.path.join(name, "linear.pth"),
             map_location=torch.device("cpu"))["fc_class1"])
         self.fc_class2.load_state_dict(torch.load(
-            os.path.join(name, "linear.pth"), 
+            os.path.join(name, "linear.pth"),
             map_location=torch.device("cpu"))["fc_class2"])
-        
+
     def feature(self, inputs):
         outputs = self.model(**inputs)
         embeddings = pool(
-            outputs.last_hidden_state, 
+            outputs.last_hidden_state,
             inputs["attention_mask"],
-            pooling_method="cls" # or try "mean"
+            pooling_method="cls"  # or try "mean"
         )
         return F.normalize(embeddings, p=2, dim=1)
 

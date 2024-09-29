@@ -4,3 +4,4 @@ __pycache__
 api/encoder_model/
 *.log.jsonl
 *.log
+.env
