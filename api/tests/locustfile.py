@@ -18,4 +18,3 @@ class ApiUser(HttpUser):
         }
         self.client.post("/predict", json=payload)
         self.q_i += 1
-

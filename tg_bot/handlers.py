@@ -39,7 +39,7 @@ async def answer_for_all_question(message: types.Message):
         data = {'question': text}
 
         async with httpx.AsyncClient() as client:
-            response = await client.post(API_URL + '/predict', json=data)
+            response = await client.post(API_URL + '/predict', json=data, timeout=300)
             response_data = response.json()
 
         answer = response_data['answer']
